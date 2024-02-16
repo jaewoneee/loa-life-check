@@ -1,1 +1,1 @@
-export const URL = 'https://developer-lostark.game.onstove.com/';
+export const URL = 'https://developer-lostark.game.onstove.com';
