@@ -1,4 +1,3 @@
-import { getLostArkNews, getUserCharacterList } from '@src/api/character';
 import CommonButton from '@src/components/common/button';
 import { URL } from '@src/constants/url';
 import { useCallback, useState } from 'react';
@@ -13,6 +12,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as SecureStore from 'expo-secure-store';
+import { useLostArkNews, useUserCharacterList } from '@src/api/api';
 
 export default function KeyScreen({ navigation }: { navigation: any }) {
   const [apiKey, setApiKey] = useState<string | undefined>(undefined);
@@ -20,8 +20,8 @@ export default function KeyScreen({ navigation }: { navigation: any }) {
   const [characterName, setCharacterName] = useState<string | undefined>(
     undefined,
   );
-  const news = getLostArkNews();
-  const { mutate: list } = getUserCharacterList();
+  const { mutate: news } = useLostArkNews();
+  const { mutate: list } = useUserCharacterList();
 
   const OpenURLButton = () => {
     const handlePress = useCallback(async () => {
@@ -44,25 +44,32 @@ export default function KeyScreen({ navigation }: { navigation: any }) {
   };
 
   const saveApiKeyStorage = async () => {
-    await SecureStore.setItemAsync('api_key', apiKey as string);
-    console.log('saved');
+    await SecureStore.setItemAsync('api_key', apiKey as string)
+      .then(() => console.log('1. saved'))
+      .catch((err) => console.log('not saved'));
   };
 
-  const checkApiKeyAvailability = () => {
+  const checkApiKeyAvailability = async () => {
     if (!apiKey) return alert('API KEY가 입력되지 않았습니다');
 
-    saveApiKeyStorage();
-    news.mutate();
-
-    if (news.isSuccess) setApiKeyConfirmed(true);
-    if (news.isError) alert('Fail');
+    await saveApiKeyStorage();
+    news(undefined, {
+      onSuccess: () => {
+        console.log('3.is pending');
+        setApiKeyConfirmed(true);
+      },
+      onError: (err) => {
+        alert('API KEY를 확인해 주세요');
+        console.error(err);
+      },
+    });
   };
 
   const fetchUserCharaterList = () => {
-    if (!characterName) return;
+    if (!characterName) return alert('캐릭터명이 입력되지 않았습니다');
     list(characterName, {
       onSuccess: (data) => {
-        console.log('data', data);
+        console.log('3. data', data);
         navigation.navigate('Main');
       },
       onError: (err) => console.error(err),

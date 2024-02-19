@@ -1,6 +1,6 @@
 import { API_KEY } from '@src/constants/key';
 import axios, { AxiosRequestConfig } from 'axios';
-import * as SecureStore from 'expo-secure-store';
+import { getApiKey } from '../lib/utils.js';
 
 const axiosFetch = async ({
   url,
@@ -11,24 +11,18 @@ const axiosFetch = async ({
   method?: string;
   data?: any;
 }) => {
-  async function getApiKey() {
-    let result = await SecureStore.getItemAsync('api_key');
-    if (result) {
-      alert("🔐 Here's your value 🔐 \n" + result);
-      return JSON.stringify(result);
-    } else {
-      alert('No values stored under that key.');
-    }
-  }
+  const storedKey = await getApiKey().then((res) => res?.replaceAll('"', ''));
+
+  if (!storedKey) console.log('no saved key');
 
   const sendOption: AxiosRequestConfig = {
     url,
     method,
     headers: {
-      Authorization: `bearer ${getApiKey()}`,
+      Authorization: `bearer ${storedKey}`,
     },
   };
-  console.log(`bearer ${getApiKey()}`);
+  console.log(`bearer ${storedKey}`, sendOption);
 
   if (data) {
     switch (method) {
@@ -43,7 +37,7 @@ const axiosFetch = async ({
   }
 
   const result = await axios(sendOption);
-
+  console.log('result===>', result.data);
   return result.data;
 };
 
