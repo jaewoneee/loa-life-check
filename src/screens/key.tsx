@@ -1,6 +1,6 @@
 import CommonButton from '@src/components/common/button';
 import { URL } from '@src/constants/url';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -12,16 +12,16 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as SecureStore from 'expo-secure-store';
-import { useLostArkNews, useUserCharacterList } from '@src/api/api';
+import { useLostArkNews } from '@src/api/api';
+import { getStoredData, deleteStoredData } from '@src/libs/utils';
 
 export default function KeyScreen({ navigation }: { navigation: any }) {
   const [apiKey, setApiKey] = useState<string | undefined>(undefined);
-  const [isApiKeyConfirmed, setApiKeyConfirmed] = useState<boolean>(false);
+  const [isApiKeySaved, setApiKeySaved] = useState<boolean>(false);
   const [characterName, setCharacterName] = useState<string | undefined>(
     undefined,
   );
   const { mutate: news } = useLostArkNews();
-  const { mutate: list } = useUserCharacterList();
 
   const OpenURLButton = () => {
     const handlePress = useCallback(async () => {
@@ -43,43 +43,46 @@ export default function KeyScreen({ navigation }: { navigation: any }) {
     );
   };
 
-  const saveApiKeyStorage = async () => {
-    await SecureStore.setItemAsync('api_key', apiKey as string)
-      .then(() => console.log('1. saved'))
-      .catch((err) => console.log('not saved'));
-  };
-
   const checkApiKeyAvailability = async () => {
     if (!apiKey) return alert('API KEY가 입력되지 않았습니다');
 
-    await saveApiKeyStorage();
+    // api key 저장
+    await SecureStore.setItemAsync('api_key', apiKey as string);
+
+    // 뉴스 조회가 되지 않을시 유효한 api key가 아님
     news(undefined, {
       onSuccess: () => {
-        console.log('3.is pending');
-        setApiKeyConfirmed(true);
+        setApiKeySaved(true);
       },
       onError: (err) => {
+        // console.error(err);
         alert('API KEY를 확인해 주세요');
-        console.error(err);
+        deleteStoredData('api_key');
       },
     });
   };
 
-  const fetchUserCharaterList = () => {
-    if (!characterName) return alert('캐릭터명이 입력되지 않았습니다');
-    list(characterName, {
-      onSuccess: (data) => {
-        console.log('3. data', data);
-        navigation.navigate('Main');
-      },
-      onError: (err) => console.error(err),
-    });
+  const saveCharacterName = async () => {
+    if (!characterName) return alert('캐릭터명을 입력해 주세요');
+    // 대표 캐릭터명 저장
+    await SecureStore.setItemAsync('character', characterName as string);
+    navigation.navigate('Main');
   };
+
+  useEffect(() => {
+    async function getStoredAllData() {
+      const key = await getStoredData('api_key');
+      const character = await getStoredData('character');
+      if (key && character) navigation.navigate('Main');
+    }
+
+    getStoredAllData();
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>로아 생활 체크</Text>
-      {!isApiKeyConfirmed ? (
+      {!isApiKeySaved ? (
         <>
           <Text style={styles.text}>
             로생첵 서비스 이용을 위해 로스트아크 API KEY가 필요합니다.
@@ -105,7 +108,7 @@ export default function KeyScreen({ navigation }: { navigation: any }) {
             value={characterName}
             onChangeText={(val) => setCharacterName(val)}
           />
-          <CommonButton text={'확인'} callback={fetchUserCharaterList} />
+          <CommonButton text={'확인'} callback={saveCharacterName} />
         </>
       )}
     </SafeAreaView>

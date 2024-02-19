@@ -4,6 +4,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import MainScreen from '@src/screens/main';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import SettingScreen from '@src/screens/setting';
 
 const Stack = createNativeStackNavigator();
 const queryClient = new QueryClient();
@@ -17,6 +18,11 @@ export default function App() {
             name="ApiKey"
             component={KeyScreen}
             options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="Setting"
+            component={SettingScreen}
+            // options={{ headerShown: false }}
           />
           <Stack.Screen
             name="Main"
