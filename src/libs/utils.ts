@@ -1,18 +1,23 @@
 import * as SecureStore from 'expo-secure-store';
 
-const getStoredData = async (keyName: string) => {
+const saveStoreData = async (keyName: string, data: any) => {
+  console.log('success', keyName, data);
+  await SecureStore.setItemAsync(keyName, data);
+};
+
+const getStoreData = async (keyName: string) => {
   let result = await SecureStore.getItemAsync(keyName);
   if (result) {
-    console.log("2. 🔐 Here's your value 🔐 \n" + result.slice(0, 3));
-    return JSON.stringify(result);
+    console.log("2. 🔐 Here's your value 🔐 \n" + keyName + result.slice(0, 3));
+    return JSON.stringify(result).replaceAll('"', '');
   } else {
-    alert('No values stored under that key.');
+    console.log('No values stored under that key.');
   }
 };
 
-const deleteStoredData = async (keyName: string) => {
+const deleteStoreData = async (keyName: string) => {
   await SecureStore.deleteItemAsync(keyName);
   console.log('value is deleted');
 };
 
-export { getStoredData, deleteStoredData };
+export { saveStoreData, getStoreData, deleteStoreData };

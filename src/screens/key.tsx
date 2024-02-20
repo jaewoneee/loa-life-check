@@ -13,7 +13,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as SecureStore from 'expo-secure-store';
 import { useLostArkNews } from '@src/api/api';
-import { getStoredData, deleteStoredData } from '@src/libs/utils';
+import { getStoreData, deleteStoreData, saveStoreData } from '@src/libs/utils';
 
 export default function KeyScreen({ navigation }: { navigation: any }) {
   const [apiKey, setApiKey] = useState<string | undefined>(undefined);
@@ -47,7 +47,7 @@ export default function KeyScreen({ navigation }: { navigation: any }) {
     if (!apiKey) return alert('API KEY가 입력되지 않았습니다');
 
     // api key 저장
-    await SecureStore.setItemAsync('api_key', apiKey as string);
+    saveStoreData('api_key', apiKey);
 
     // 뉴스 조회가 되지 않을시 유효한 api key가 아님
     news(undefined, {
@@ -57,7 +57,7 @@ export default function KeyScreen({ navigation }: { navigation: any }) {
       onError: (err) => {
         // console.error(err);
         alert('API KEY를 확인해 주세요');
-        deleteStoredData('api_key');
+        deleteStoreData('api_key');
       },
     });
   };
@@ -71,8 +71,8 @@ export default function KeyScreen({ navigation }: { navigation: any }) {
 
   useEffect(() => {
     async function getStoredAllData() {
-      const key = await getStoredData('api_key');
-      const character = await getStoredData('character');
+      const key = await getStoreData('api_key');
+      const character = await getStoreData('character');
       if (key && character) navigation.navigate('Main');
     }
 

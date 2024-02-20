@@ -1,5 +1,5 @@
 import { useUserCharacterList } from '@src/api/api';
-import { deleteStoredData, getStoredData } from '@src/libs/utils';
+import { deleteStoreData, getStoreData, saveStoreData } from '@src/libs/utils';
 import useCharacterStore from '@src/stores/useCharacters';
 import { useEffect, useState } from 'react';
 import {
@@ -17,15 +17,9 @@ import CharacterBox from '@src/components/character';
 export default function MainScreen({ navigation }: { navigation: any }) {
   const { mutate, data } = useUserCharacterList();
   const [isOpen, setOpen] = useState<boolean>(false);
-  const {
-    characters,
-    server,
-    serverList,
-    setCharacters,
-    setServer,
-    setServerList,
-  } = useCharacterStore();
-  const [currentServer, setCurrentServer] = useState<string | ''>(server || '');
+  const { characters, serverList, setCharacters, setServerList } =
+    useCharacterStore();
+  const [currentServer, setCurrentServer] = useState<string | null>(null);
 
   const getAllServers = (data: CharacterListTypes[]) => {
     const rawList = data.map((v) => v.ServerName);
@@ -51,39 +45,41 @@ export default function MainScreen({ navigation }: { navigation: any }) {
   };
 
   useEffect(() => {
-    if (data) {
+    if (currentServer && data) {
+      saveStoreData('server', currentServer);
       const filteredData = filterCharacters(data, currentServer);
       setCharacters(filteredData);
-      setServer(currentServer);
     }
   }, [currentServer]);
 
   useEffect(() => {
     async function fetchCharacterList() {
-      const name = await getStoredData('character').then((res) =>
-        res?.replaceAll('"', ''),
-      );
+      const name = await getStoreData('character');
+      const storedServer = await getStoreData('server');
 
       if (name) {
         mutate(name, {
           onSuccess: (data: CharacterListTypes[]) => {
-            const mainServer = data.find(
-              (v) => v.CharacterName === name,
-            )?.ServerName;
+            let server;
 
-            if (!mainServer) return null;
+            if (storedServer) {
+              server = storedServer;
+            } else {
+              server = data.find((v) => v.CharacterName === name)?.ServerName;
+            }
 
-            const filteredData = filterCharacters(data, currentServer);
+            saveStoreData('server', server);
+            setCurrentServer(server as string);
+
+            const filteredData = filterCharacters(data, server as string);
             const serverList = getAllServers(data);
 
-            // setList(data);
             setCharacters(filteredData);
-            setServer(mainServer);
             setServerList(serverList);
           },
           onError: (err) => {
             console.error(err);
-            deleteStoredData('characater');
+            deleteStoreData('characater');
           },
         });
       }
@@ -93,9 +89,11 @@ export default function MainScreen({ navigation }: { navigation: any }) {
     return () => {};
   }, []);
 
-  console.log('11', characters, currentServer);
   return (
     <SafeAreaView style={styles.container}>
+      <TouchableOpacity onPress={() => deleteStoreData('server')}>
+        <Text>서버 초기화</Text>
+      </TouchableOpacity>
       <View style={styles.top}>
         <Text>레이드 현황</Text>
         <TouchableOpacity onPress={() => navigation.navigate('Setting')}>
@@ -111,9 +109,10 @@ export default function MainScreen({ navigation }: { navigation: any }) {
           setValue={setCurrentServer}
         />
       </View>
+      {/* 상위 6개 캐릭터만 보여주기 */}
       <FlatList
         style={styles.list}
-        data={characters}
+        data={characters.slice(0, 6)}
         keyExtractor={(item) => item.CharacterName}
         renderItem={({ item }) => <CharacterBox data={item} />}
       />

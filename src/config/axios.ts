@@ -1,4 +1,4 @@
-import { getStoredData } from '@src/libs/utils';
+import { getStoreData } from '@src/libs/utils';
 import { API_KEY } from '@src/constants/key';
 import axios, { AxiosRequestConfig } from 'axios';
 
@@ -11,7 +11,7 @@ const axiosFetch = async ({
   method?: string;
   data?: any;
 }) => {
-  const storedKey = await getStoredData('api_key').then((res) =>
+  const storedKey = await getStoreData('api_key').then((res) =>
     res?.replaceAll('"', ''),
   );
 

@@ -1,12 +1,12 @@
 import { useUserCharacterList } from '@src/api/api';
-import { deleteStoredData, getStoredData } from '@src/libs/utils';
+import { deleteStoreData, getStoreData } from '@src/libs/utils';
 import useCharacterStore from '@src/stores/useCharacters';
 import { useEffect, useState } from 'react';
 import { Text, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function SettingScreen() {
-  const { characters, server } = useCharacterStore();
+  const { characters } = useCharacterStore();
 
   if (!characters) return null;
 
