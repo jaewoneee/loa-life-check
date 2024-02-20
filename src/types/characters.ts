@@ -5,4 +5,4 @@ type CharacterListTypes = {
   CharacterClassName: string;
   ItemAvgLevel: string;
   ItemMaxLevel: string;
-}[];
+};

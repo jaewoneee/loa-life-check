@@ -1,4 +1,4 @@
-import CommonButton from '@src/components/common/button';
+import CommonButton from '@src/components/button';
 import { URL } from '@src/constants/url';
 import { useCallback, useEffect, useState } from 'react';
 import {

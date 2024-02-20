@@ -8,19 +8,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 export default function SettingScreen() {
   const { characters, server } = useCharacterStore();
 
-  const filterCharacters = () => {
-    const charactersByServer = characters.filter(
-      (v) => v.ServerName === server,
-    );
-
-    const characatersByLevel = charactersByServer.sort(
-      (a, b) =>
-        Number(b.ItemMaxLevel.replace(',', '')) -
-        Number(a.ItemMaxLevel.replace(',', '')),
-    );
-  };
-
-  filterCharacters();
   if (!characters) return null;
 
   return (

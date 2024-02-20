@@ -1,17 +1,22 @@
 import { create } from 'zustand';
 
 interface CharacterStoreInterface {
-  characters: CharacterListTypes | [];
+  characters: CharacterListTypes[] | [];
   server: string | null;
-  setCharacters: (a: CharacterListTypes) => void;
+  serverList: { label: string; value: string }[] | [];
+  setCharacters: (a: CharacterListTypes[]) => void;
   setServer: (a: string) => void;
+  setServerList: (a: { label: string; value: string }[]) => void;
 }
 
 const useCharacterStore = create<CharacterStoreInterface>((set) => ({
   characters: [],
   server: null,
-  setCharacters: (characters: CharacterListTypes) => set({ characters }),
+  serverList: [],
+  setCharacters: (characters: CharacterListTypes[]) => set({ characters }),
   setServer: (server: string) => set({ server }),
+  setServerList: (serverList: { label: string; value: string }[]) =>
+    set({ serverList }),
 }));
 
 export default useCharacterStore;

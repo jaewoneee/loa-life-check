@@ -15,7 +15,7 @@ const useLostArkNews = () =>
 
 const getUserCharacterList = async (
   name: string,
-): Promise<CharacterListTypes> =>
+): Promise<CharacterListTypes[]> =>
   await axiosFetch({
     url: `${URL}/characters/${name}/siblings`,
     method: 'get',
