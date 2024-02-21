@@ -13,6 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import DropDownPicker from 'react-native-dropdown-picker';
 import CharacterBox from '@src/components/character';
+import { CharacterListTypes } from '@src/types/characters';
 
 export default function MainScreen({ navigation }: { navigation: any }) {
   const { mutate, data } = useUserCharacterList();
@@ -79,6 +80,7 @@ export default function MainScreen({ navigation }: { navigation: any }) {
           },
           onError: (err) => {
             console.error(err);
+            deleteStoreData('server');
             deleteStoreData('characater');
           },
         });
@@ -91,11 +93,11 @@ export default function MainScreen({ navigation }: { navigation: any }) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <TouchableOpacity onPress={() => deleteStoreData('server')}>
+      <TouchableOpacity onPress={() => deleteStoreData('character')}>
         <Text>서버 초기화</Text>
       </TouchableOpacity>
       <View style={styles.top}>
-        <Text>레이드 현황</Text>
+        <Text style={styles.title}>레이드 현황</Text>
         <TouchableOpacity onPress={() => navigation.navigate('Setting')}>
           <Ionicons name="settings-outline" size={24} color="black" />
         </TouchableOpacity>
@@ -136,14 +138,12 @@ const styles = StyleSheet.create({
     zIndex: 100,
   },
   list: {
-    backgroundColor: 'red',
     marginTop: 16,
   },
   title: {
     fontSize: 24,
     textAlign: 'center',
     fontWeight: 'bold',
-    marginBottom: 20,
   },
   text: {
     textAlign: 'center',
@@ -155,7 +155,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   linkBox: {
-    marginTop: 24,
+    marginTop: 20,
     gap: 12,
   },
   link: {
