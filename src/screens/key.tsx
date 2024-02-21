@@ -73,7 +73,6 @@ export default function KeyScreen({ navigation }: { navigation: any }) {
     async function getStoredAllData() {
       const key = await getStoreData('api_key');
       const character = await getStoreData('character');
-      if (key && !character) setApiKeySaved(true);
       if (key && character) navigation.navigate('Main');
     }
 

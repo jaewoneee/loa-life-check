@@ -4,7 +4,6 @@ export type RaidDataTypes = {
   ilvl: number;
   phase?: number;
   gold: number;
-  isChecked?: boolean;
 };
 
 const raidData: RaidDataTypes[] = [
