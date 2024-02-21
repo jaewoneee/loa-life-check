@@ -1,4 +1,4 @@
-type CharacterListTypes = {
+export type CharacterListTypes = {
   ServerName: string;
   CharacterName: string;
   CharacterLevel: number;

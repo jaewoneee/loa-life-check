@@ -1,6 +1,7 @@
 import { getStoreData } from '@src/libs/utils';
 import { API_KEY } from '@src/constants/key';
 import axios, { AxiosRequestConfig } from 'axios';
+import handleAxiosError from './error';
 
 const axiosFetch = async ({
   url,
@@ -11,9 +12,7 @@ const axiosFetch = async ({
   method?: string;
   data?: any;
 }) => {
-  const storedKey = await getStoreData('api_key').then((res) =>
-    res?.replaceAll('"', ''),
-  );
+  const storedKey = await getStoreData('api_key');
 
   if (!storedKey) console.log('no saved key');
 
@@ -38,8 +37,14 @@ const axiosFetch = async ({
     }
   }
 
-  const result = await axios(sendOption);
-  return result.data;
+  const result = await axios(sendOption)
+    .then((res) => res.data)
+    .catch((err) => {
+      const { status } = err.response;
+      handleAxiosError(status);
+    });
+
+  return result;
 };
 
 export default axiosFetch;
