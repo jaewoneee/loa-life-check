@@ -70,7 +70,6 @@ function RaidCheckBox({
 }) {
   const level = Number(lv.replaceAll(',', ''));
 
-  // TODO: 아브렐슈드 예외처리
   const checkboxProps = (text: string) => ({
     size: 20,
     fillColor: '#919191',
@@ -87,7 +86,7 @@ function RaidCheckBox({
     <BouncyCheckbox {...checkboxProps(text)} />
   );
 
-  if (raid.name === '아브렐슈드') {
+  const renderBrelshaza = () => {
     if (raid.phase === 2) {
       return (
         <View>
@@ -104,6 +103,27 @@ function RaidCheckBox({
         {renderCheckbox(`${raid.name} ${level >= 1560 ? '하드' : '노말'} 4`)}
       </View>
     );
+  };
+
+  const renderKamen = () => {
+    if (raid.phase === 4) {
+      return (
+        <View>
+          {renderCheckbox(`${raid.name} ${raid.difficulty} 1-3`)}
+          {renderCheckbox(`${raid.name} 하드 4`)}
+        </View>
+      );
+    }
+
+    return <View>{renderCheckbox(`${raid.name} ${raid.difficulty} 1-3`)}</View>;
+  };
+
+  if (raid.name === '아브렐슈드') {
+    return renderBrelshaza();
+  }
+
+  if (raid.name === '카멘') {
+    return renderKamen();
   }
 
   return <View>{renderCheckbox(`${raid.name} ${raid.difficulty}`)}</View>;

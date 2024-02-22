@@ -55,7 +55,6 @@ export default function KeyScreen({ navigation }: { navigation: any }) {
         setApiKeySaved(true);
       },
       onError: (err) => {
-        // console.error(err);
         alert('API KEY를 확인해 주세요');
         deleteStoreData('api_key');
       },
@@ -73,6 +72,7 @@ export default function KeyScreen({ navigation }: { navigation: any }) {
     async function getStoredAllData() {
       const key = await getStoreData('api_key');
       const character = await getStoreData('character');
+
       if (key && !character) setApiKeySaved(true);
       if (key && character) navigation.navigate('Main');
     }

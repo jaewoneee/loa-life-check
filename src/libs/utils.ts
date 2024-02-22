@@ -9,7 +9,7 @@ const getStoreData = async (keyName: string) => {
   let result = await SecureStore.getItemAsync(keyName);
   if (result) {
     console.log("2. 🔐 Here's your value 🔐 \n" + keyName + result.slice(0, 3));
-    return JSON.stringify(result).replaceAll('"', '');
+    return result;
   } else {
     console.log('No values stored under that key.');
   }

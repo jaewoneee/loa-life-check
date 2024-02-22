@@ -11,7 +11,7 @@ const raidData: RaidDataTypes[] = [
   { name: '에키드나', difficulty: '하드', ilvl: 1630, gold: 18500 },
   { name: '에키드나', difficulty: '노말', ilvl: 1620, gold: 14500 },
   { name: '카멘', difficulty: '하드', ilvl: 1630, phase: 4, gold: 21000 },
-  { name: '카멘', difficulty: '하드', ilvl: 1630, gold: 20000 },
+  { name: '카멘', difficulty: '하드', ilvl: 1630, phase: 3, gold: 20000 },
   { name: '카멘', difficulty: '노말', ilvl: 1610, gold: 13000 },
   { name: '혼돈의 상아탑', difficulty: '하드', ilvl: 1620, gold: 14500 },
   { name: '혼돈의 상아탑', difficulty: '노말', ilvl: 1600, gold: 9000 },
