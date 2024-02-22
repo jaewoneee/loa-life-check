@@ -12,15 +12,19 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as SecureStore from 'expo-secure-store';
-import { useLostArkNews } from '@src/api/api';
+import { useLostArkNews, useUserCharacterList } from '@src/api/api';
 import { getStoreData, deleteStoreData, saveStoreData } from '@src/libs/utils';
+import { CharacterListTypes } from '@src/types/characters';
+import useCharacterStore from '@src/stores/useCharacters';
 
 export default function KeyScreen({ navigation }: { navigation: any }) {
+  const { setServerList } = useCharacterStore();
   const [apiKey, setApiKey] = useState<string | undefined>(undefined);
   const [isApiKeySaved, setApiKeySaved] = useState<boolean>(false);
   const [characterName, setCharacterName] = useState<string | undefined>(
     undefined,
   );
+  const { mutate: list, data } = useUserCharacterList();
   const { mutate: news } = useLostArkNews();
 
   const OpenURLButton = () => {
@@ -61,11 +65,43 @@ export default function KeyScreen({ navigation }: { navigation: any }) {
     });
   };
 
+  const getAllServers = (data: CharacterListTypes[]) => {
+    const rawList = data.map((v) => v.ServerName);
+    const serverList = [...new Set(rawList)].map((v) => {
+      return { label: v, value: v };
+    });
+
+    return serverList;
+  };
+
   const saveCharacterName = async () => {
     if (!characterName) return alert('캐릭터명을 입력해 주세요');
     // 대표 캐릭터명 저장
-    await SecureStore.setItemAsync('character', characterName as string);
-    navigation.navigate('Main');
+
+    if (characterName) {
+      list(characterName, {
+        onSuccess: (data: CharacterListTypes[]) => {
+          const targetCharacter = data.find(
+            (v) => v.CharacterName === characterName,
+          );
+
+          if (!targetCharacter) alert('존재하지 않는 캐릭터명입니다.');
+
+          const serverList = getAllServers(data);
+
+          saveStoreData('server', targetCharacter?.ServerName);
+          saveStoreData('character', characterName);
+          setServerList(serverList);
+
+          navigation.navigate('Main');
+        },
+        onError: (err) => {
+          // console.error(err);
+          deleteStoreData('characater');
+          alert('존재하지 않는 캐릭터명입니다.');
+        },
+      });
+    }
   };
 
   useEffect(() => {

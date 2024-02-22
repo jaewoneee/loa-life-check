@@ -24,7 +24,7 @@ export default function MainScreen({ navigation }: { navigation: any }) {
 
   const getAllServers = (data: CharacterListTypes[]) => {
     const rawList = data.map((v) => v.ServerName);
-    const serverList = Array.from(new Set(rawList)).map((v) => {
+    const serverList = [...new Set(rawList)].map((v) => {
       return { label: v, value: v };
     });
 
@@ -80,8 +80,9 @@ export default function MainScreen({ navigation }: { navigation: any }) {
           },
           onError: (err) => {
             console.error(err);
-            deleteStoreData('server');
             deleteStoreData('characater');
+            alert('존재하지 않는 캐릭터명입니다.');
+            navigation.navigate('ApiKey');
           },
         });
       }
@@ -91,11 +92,25 @@ export default function MainScreen({ navigation }: { navigation: any }) {
     return () => {};
   }, []);
 
+  useEffect(() => {
+    if (!data) return;
+
+    async function fetchCharacterList() {
+      if (data) {
+        const storedServer = await getStoreData('server');
+        const filteredData = filterCharacters(data, storedServer as string);
+
+        setCurrentServer(storedServer as string);
+        setCharacters(filteredData);
+      }
+    }
+    fetchCharacterList();
+  }, [data]);
+
+  if (!currentServer) return null;
+
   return (
     <SafeAreaView style={styles.container}>
-      <TouchableOpacity onPress={() => deleteStoreData('character')}>
-        <Text>서버 초기화</Text>
-      </TouchableOpacity>
       <View style={styles.top}>
         <Text style={styles.title}>레이드 현황</Text>
         <TouchableOpacity onPress={() => navigation.navigate('Setting')}>
@@ -126,6 +141,7 @@ const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 16,
     flex: 1,
+    paddingTop: 20,
   },
   top: {
     flexDirection: 'row',
@@ -151,7 +167,7 @@ const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 1,
-    borderColor: '#333333',
+    borderColor: '#6c6c6c',
     padding: 16,
     borderRadius: 8,
   },

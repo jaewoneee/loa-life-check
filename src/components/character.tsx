@@ -27,8 +27,8 @@ export default function CharacterBox({ data }: { data: CharacterListTypes }) {
     targetRaid.isChecked = !targetRaid.isChecked;
 
     setRaidList((state) => {
-      const newArray = Array.from(new Set([...state, targetRaid]));
-      return newArray;
+      const newArray = new Set([...state, targetRaid]);
+      return [...newArray];
     });
   };
 
