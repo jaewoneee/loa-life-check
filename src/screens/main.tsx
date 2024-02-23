@@ -93,6 +93,7 @@ export default function MainScreen({ navigation }: { navigation: any }) {
           items={serverList}
           setOpen={setOpen}
           setValue={setCurrentServer}
+          style={styles.input}
         />
       </View>
       {/* 상위 6개 캐릭터만 보여주기 */}
@@ -130,15 +131,13 @@ const styles = StyleSheet.create({
     fontSize: 24,
     textAlign: 'center',
     fontWeight: 'bold',
+    color: '#333333',
   },
   text: {
     textAlign: 'center',
   },
   input: {
-    borderWidth: 1,
     borderColor: '#6c6c6c',
-    padding: 16,
-    borderRadius: 8,
   },
   linkBox: {
     marginTop: 20,

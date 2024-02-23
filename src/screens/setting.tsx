@@ -1,11 +1,12 @@
 import CommonButton from '@src/components/button';
 import { deleteStoreData, getStoreData } from '@src/libs/utils';
-import useCharacterStore from '@src/stores/useCharacters';
+import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { Text, StyleSheet, View, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function SettingScreen({ navigation }: { navigation: any }) {
+  const queryClient = useQueryClient();
   const [data, setData] = useState<{
     key?: string;
     name?: string;
@@ -15,7 +16,12 @@ export default function SettingScreen({ navigation }: { navigation: any }) {
     await deleteStoreData('api_key');
     await deleteStoreData('character');
     await deleteStoreData('server');
-    navigation.navigate('ApiKey');
+
+    queryClient.clear();
+    // queryClient.invalidateQueries({ queryKey: ['news'] });
+    // queryClient.invalidateQueries({ queryKey: ['character'] });
+
+    navigation.reset({ routes: [{ name: 'ApiKey' }] });
   };
 
   const confirmDeletingData = () =>

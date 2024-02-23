@@ -47,11 +47,12 @@ export default function KeyScreen({ navigation }: { navigation: any }) {
     // api key 저장
     saveStoreData('api_key', apiKey);
 
-    // 뉴스 조회가 되지 않을시 유효한 api key가 아님
     try {
+      // 뉴스 조회가 되지 않을시 유효한 api key가 아님
       await refetchNews();
-
-      if (news) setApiKeySaved(true);
+      if (news) {
+        setApiKeySaved(true);
+      }
     } catch (error) {
       console.log(error);
 
@@ -63,18 +64,17 @@ export default function KeyScreen({ navigation }: { navigation: any }) {
   };
 
   const saveCharacterName = async () => {
+    if (!characterName) return alert('캐릭터명을 입력해 주세요');
+
     try {
-      if (!characterName) return alert('캐릭터명을 입력해 주세요');
-
       await refetch();
-
       if (data) {
         const targetCharacter = data.find(
           (v) => v.CharacterName === characterName,
         );
 
         if (!targetCharacter) return;
-
+        console.log('fetched character');
         saveStoreData('server', targetCharacter.ServerName);
         saveStoreData('character', targetCharacter.CharacterName);
 
@@ -95,13 +95,16 @@ export default function KeyScreen({ navigation }: { navigation: any }) {
       const key = await getStoreData('api_key');
       const character = await getStoreData('character');
 
-      if (key && !character) setApiKeySaved(true);
+      console.log('저장된 값', key, character, isApiKeySaved);
+
+      if (!key && !character) setApiKeySaved(false);
       if (key && character) navigation.navigate('Main');
     }
 
     getStoredAllData();
   }, []);
 
+  console.log('쿼리 데이터', data, news);
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>로아 생활 체크</Text>
@@ -156,7 +159,7 @@ const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 1,
-    borderColor: '#333333',
+    borderColor: '#6c6c6c',
     padding: 16,
     borderRadius: 8,
   },

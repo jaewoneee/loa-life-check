@@ -39,7 +39,6 @@ const axiosFetch = async ({
 
   const result = await axios(sendOption)
     .then((res) => {
-      console.log(res);
       return res.data;
     })
     .catch((err) => {
