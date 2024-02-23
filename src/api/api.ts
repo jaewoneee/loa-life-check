@@ -1,29 +1,32 @@
 import axiosFetch from '@src/config/axios';
 import { URL } from '@src/constants/url';
-import { UseQueryResult, useMutation } from '@tanstack/react-query';
+import { CharacterListTypes } from '@src/types/characters';
+import { UseQueryResult, useQuery } from '@tanstack/react-query';
 
 const getLostArkNews = async () =>
   await axiosFetch({
     url: `${URL}/news/notices`,
-    method: 'get',
   });
 
 const useLostArkNews = () =>
-  useMutation({
-    mutationFn: getLostArkNews,
+  useQuery({
+    queryKey: ['news'],
+    queryFn: getLostArkNews,
+    enabled: false,
   });
 
-const getUserCharacterList = async (
-  name: string,
-): Promise<CharacterListTypes[]> =>
+const getUserCharacterList = async (name: string) =>
   await axiosFetch({
     url: `${URL}/characters/${name}/siblings`,
-    method: 'get',
   });
 
-const useUserCharacterList = () =>
-  useMutation({
-    mutationFn: (name: string) => getUserCharacterList(name),
+const useUserCharacterList = (
+  name: string,
+): UseQueryResult<CharacterListTypes[]> =>
+  useQuery({
+    queryKey: ['character', name],
+    queryFn: () => getUserCharacterList(name as string),
+    enabled: false,
   });
 
 export { useLostArkNews, useUserCharacterList };

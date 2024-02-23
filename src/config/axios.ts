@@ -38,7 +38,10 @@ const axiosFetch = async ({
   }
 
   const result = await axios(sendOption)
-    .then((res) => res.data)
+    .then((res) => {
+      console.log(res);
+      return res.data;
+    })
     .catch((err) => {
       const { status } = err.response;
       handleAxiosError(status);

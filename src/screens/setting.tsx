@@ -11,10 +11,10 @@ export default function SettingScreen({ navigation }: { navigation: any }) {
     name?: string;
   }>({});
 
-  const deleteAllStoredData = () => {
-    deleteStoreData('character');
-    deleteStoreData('server');
-    deleteStoreData('api_key');
+  const deleteAllStoredData = async () => {
+    await deleteStoreData('api_key');
+    await deleteStoreData('character');
+    await deleteStoreData('server');
     navigation.navigate('ApiKey');
   };
 

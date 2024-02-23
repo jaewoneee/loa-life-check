@@ -11,29 +11,23 @@ import {
   Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import * as SecureStore from 'expo-secure-store';
 import { useLostArkNews, useUserCharacterList } from '@src/api/api';
 import { getStoreData, deleteStoreData, saveStoreData } from '@src/libs/utils';
-import { CharacterListTypes } from '@src/types/characters';
-import useCharacterStore from '@src/stores/useCharacters';
 
 export default function KeyScreen({ navigation }: { navigation: any }) {
-  const { setServerList } = useCharacterStore();
   const [apiKey, setApiKey] = useState<string | undefined>(undefined);
   const [isApiKeySaved, setApiKeySaved] = useState<boolean>(false);
   const [characterName, setCharacterName] = useState<string | undefined>(
     undefined,
   );
-  const { mutate: list, data } = useUserCharacterList();
-  const { mutate: news } = useLostArkNews();
+  const { data, refetch } = useUserCharacterList(characterName as string);
+  const { data: news, refetch: refetchNews } = useLostArkNews();
 
   const OpenURLButton = () => {
     const handlePress = useCallback(async () => {
       const supported = await Linking.canOpenURL(URL);
 
       if (supported) {
-        // Opening the link with some app, if the URL scheme is "http" the web link should be opened
-        // by some browser in the mobile
         await Linking.openURL(URL);
       } else {
         Alert.alert(`Don't know how to open this URL: ${URL}`);
@@ -54,53 +48,45 @@ export default function KeyScreen({ navigation }: { navigation: any }) {
     saveStoreData('api_key', apiKey);
 
     // 뉴스 조회가 되지 않을시 유효한 api key가 아님
-    news(undefined, {
-      onSuccess: () => {
-        setApiKeySaved(true);
-      },
-      onError: (err) => {
-        alert('API KEY를 확인해 주세요');
-        deleteStoreData('api_key');
-      },
-    });
-  };
+    try {
+      await refetchNews();
 
-  const getAllServers = (data: CharacterListTypes[]) => {
-    const rawList = data.map((v) => v.ServerName);
-    const serverList = [...new Set(rawList)].map((v) => {
-      return { label: v, value: v };
-    });
+      if (news) setApiKeySaved(true);
+    } catch (error) {
+      console.log(error);
 
-    return serverList;
+      if (!news) {
+        deleteStoreData('character');
+        alert('존재하지 않는 캐릭터명입니다.');
+      }
+    }
   };
 
   const saveCharacterName = async () => {
-    if (!characterName) return alert('캐릭터명을 입력해 주세요');
-    // 대표 캐릭터명 저장
+    try {
+      if (!characterName) return alert('캐릭터명을 입력해 주세요');
 
-    if (characterName) {
-      list(characterName, {
-        onSuccess: (data: CharacterListTypes[]) => {
-          const targetCharacter = data.find(
-            (v) => v.CharacterName === characterName,
-          );
+      await refetch();
 
-          if (!targetCharacter) alert('존재하지 않는 캐릭터명입니다.');
+      if (data) {
+        const targetCharacter = data.find(
+          (v) => v.CharacterName === characterName,
+        );
 
-          const serverList = getAllServers(data);
+        if (!targetCharacter) return;
 
-          saveStoreData('server', targetCharacter?.ServerName);
-          saveStoreData('character', characterName);
-          setServerList(serverList);
+        saveStoreData('server', targetCharacter.ServerName);
+        saveStoreData('character', targetCharacter.CharacterName);
 
-          navigation.navigate('Main');
-        },
-        onError: (err) => {
-          // console.error(err);
-          deleteStoreData('characater');
-          alert('존재하지 않는 캐릭터명입니다.');
-        },
-      });
+        navigation.navigate('Main');
+      }
+    } catch (error) {
+      console.log(error);
+
+      if (!data) {
+        deleteStoreData('character');
+        alert('존재하지 않는 캐릭터명입니다.');
+      }
     }
   };
 

@@ -16,11 +16,14 @@ import CharacterBox from '@src/components/character';
 import { CharacterListTypes } from '@src/types/characters';
 
 export default function MainScreen({ navigation }: { navigation: any }) {
-  const { mutate, data } = useUserCharacterList();
   const [isOpen, setOpen] = useState<boolean>(false);
   const { characters, serverList, setCharacters, setServerList } =
     useCharacterStore();
   const [currentServer, setCurrentServer] = useState<string | null>(null);
+  const [characterName, setCharacterName] = useState<string | undefined>(
+    undefined,
+  );
+  const { data, refetch } = useUserCharacterList(characterName as string);
 
   const getAllServers = (data: CharacterListTypes[]) => {
     const rawList = data.map((v) => v.ServerName);
@@ -46,68 +49,34 @@ export default function MainScreen({ navigation }: { navigation: any }) {
   };
 
   useEffect(() => {
-    if (currentServer && data) {
-      saveStoreData('server', currentServer);
-      const filteredData = filterCharacters(data, currentServer);
-      setCharacters(filteredData);
-    }
-  }, [currentServer]);
-
-  useEffect(() => {
-    async function fetchCharacterList() {
+    const setStateValue = async () => {
       const name = await getStoreData('character');
-      const storedServer = await getStoreData('server');
+      setCharacterName(name as string);
+    };
 
-      if (name) {
-        mutate(name, {
-          onSuccess: (data: CharacterListTypes[]) => {
-            let server;
-
-            if (storedServer) {
-              server = storedServer;
-            } else {
-              server = data.find((v) => v.CharacterName === name)?.ServerName;
-            }
-
-            saveStoreData('server', server);
-            setCurrentServer(server as string);
-
-            const filteredData = filterCharacters(data, server as string);
-            const serverList = getAllServers(data);
-
-            setCharacters(filteredData);
-            setServerList(serverList);
-          },
-          onError: (err) => {
-            console.error(err);
-            deleteStoreData('characater');
-            alert('존재하지 않는 캐릭터명입니다.');
-            navigation.navigate('ApiKey');
-          },
-        });
-      }
-    }
-
-    fetchCharacterList();
-    return () => {};
+    setStateValue();
   }, []);
 
   useEffect(() => {
-    if (!data) return;
-
     async function fetchCharacterList() {
+      const storedServer = currentServer || (await getStoreData('server'));
+
+      await refetch();
+
       if (data) {
-        const storedServer = await getStoreData('server');
+        const serverList = getAllServers(data);
         const filteredData = filterCharacters(data, storedServer as string);
 
+        setServerList(serverList);
         setCurrentServer(storedServer as string);
         setCharacters(filteredData);
       }
     }
-    fetchCharacterList();
-  }, [data]);
 
-  if (!currentServer) return null;
+    fetchCharacterList();
+  }, [characterName, currentServer]);
+
+  if (!data) return null;
 
   return (
     <SafeAreaView style={styles.container}>
