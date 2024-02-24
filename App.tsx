@@ -7,7 +7,13 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import SettingScreen from '@src/screens/setting';
 
 const Stack = createNativeStackNavigator();
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: Infinity,
+    },
+  },
+});
 
 export default function App() {
   return (

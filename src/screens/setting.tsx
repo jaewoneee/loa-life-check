@@ -18,9 +18,8 @@ export default function SettingScreen({ navigation }: { navigation: any }) {
     await deleteStoreData('server');
 
     queryClient.clear();
-    // queryClient.invalidateQueries({ queryKey: ['news'] });
-    // queryClient.invalidateQueries({ queryKey: ['character'] });
 
+    // 해당 화면 초기화
     navigation.reset({ routes: [{ name: 'ApiKey' }] });
   };
 

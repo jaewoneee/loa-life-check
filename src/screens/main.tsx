@@ -1,4 +1,3 @@
-import { useUserCharacterList } from '@src/api/api';
 import { deleteStoreData, getStoreData, saveStoreData } from '@src/libs/utils';
 import useCharacterStore from '@src/stores/useCharacters';
 import { useEffect, useState } from 'react';
@@ -14,8 +13,10 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import DropDownPicker from 'react-native-dropdown-picker';
 import CharacterBox from '@src/components/character';
 import { CharacterListTypes } from '@src/types/characters';
+import { useQueryClient } from '@tanstack/react-query';
 
 export default function MainScreen({ navigation }: { navigation: any }) {
+  const queryClient = useQueryClient();
   const [isOpen, setOpen] = useState<boolean>(false);
   const { characters, serverList, setCharacters, setServerList } =
     useCharacterStore();
@@ -23,7 +24,8 @@ export default function MainScreen({ navigation }: { navigation: any }) {
   const [characterName, setCharacterName] = useState<string | undefined>(
     undefined,
   );
-  const { data, refetch } = useUserCharacterList(characterName as string);
+  const characterData: CharacterListTypes[] | undefined =
+    queryClient.getQueryData(['character', characterName]);
 
   const getAllServers = (data: CharacterListTypes[]) => {
     const rawList = data.map((v) => v.ServerName);
@@ -61,11 +63,12 @@ export default function MainScreen({ navigation }: { navigation: any }) {
     async function fetchCharacterList() {
       const storedServer = currentServer || (await getStoreData('server'));
 
-      await refetch();
-
-      if (data) {
-        const serverList = getAllServers(data);
-        const filteredData = filterCharacters(data, storedServer as string);
+      if (characterData) {
+        const serverList = getAllServers(characterData);
+        const filteredData = filterCharacters(
+          characterData,
+          storedServer as string,
+        );
 
         setServerList(serverList);
         setCurrentServer(storedServer as string);
@@ -74,9 +77,9 @@ export default function MainScreen({ navigation }: { navigation: any }) {
     }
 
     fetchCharacterList();
-  }, [characterName, currentServer]);
+  }, [characterData]);
 
-  if (!data) return null;
+  if (!characterData) return null;
 
   return (
     <SafeAreaView style={styles.container}>

@@ -97,7 +97,7 @@ export default function KeyScreen({ navigation }: { navigation: any }) {
 
       console.log('저장된 값', key, character, isApiKeySaved);
 
-      if (!key && !character) setApiKeySaved(false);
+      if (key && !character) setApiKeySaved(true);
       if (key && character) navigation.navigate('Main');
     }
 
