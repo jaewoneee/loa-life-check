@@ -19,13 +19,13 @@ import { useUserCharacterList } from '@src/api/api';
 export default function MainScreen({ navigation }: { navigation: any }) {
   const queryClient = useQueryClient();
   const [isOpen, setOpen] = useState<boolean>(false);
-  const { characters, serverList, setCharacters, setServerList } =
-    useCharacterStore();
+
   const [currentServer, setCurrentServer] = useState<string | null>(null);
   const [characterName, setCharacterName] = useState<string | undefined>(
     undefined,
   );
-  const { refetch } = useUserCharacterList(characterName as string);
+  const { characters, serverList, setCharacters, setServerList } =
+    useCharacterStore();
   const characterData: CharacterListTypes[] | undefined =
     queryClient.getQueryData(['character', characterName]);
 
@@ -63,13 +63,20 @@ export default function MainScreen({ navigation }: { navigation: any }) {
 
   useEffect(() => {
     async function fetchCharacterList() {
+      let cachedData = characterData;
       const storedServer = currentServer || (await getStoreData('server'));
 
-      if (!characterData) refetch();
-      if (characterData) {
-        const serverList = getAllServers(characterData);
+      if (!characterData) {
+        cachedData = await useUserCharacterList(
+          queryClient,
+          characterName as string,
+        );
+      }
+
+      if (cachedData) {
+        const serverList = getAllServers(cachedData);
         const filteredData = filterCharacters(
-          characterData,
+          cachedData,
           storedServer as string,
         );
 
@@ -80,9 +87,7 @@ export default function MainScreen({ navigation }: { navigation: any }) {
     }
 
     fetchCharacterList();
-  }, [characterData]);
-
-  if (!characterData) return null;
+  }, [currentServer]);
 
   return (
     <SafeAreaView style={styles.container}>

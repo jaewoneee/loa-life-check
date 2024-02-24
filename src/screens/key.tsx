@@ -11,17 +11,23 @@ import {
   Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useLostArkNews, useUserCharacterList } from '@src/api/api';
+import {
+  getLostArkNews,
+  getUserCharacterList,
+  useUserCharacterList,
+  useLostArkNews,
+} from '@src/api/api';
 import { getStoreData, deleteStoreData, saveStoreData } from '@src/libs/utils';
+import { useQueryClient } from '@tanstack/react-query';
+import { CharacterListTypes } from '@src/types/characters';
 
 export default function KeyScreen({ navigation }: { navigation: any }) {
+  const queryClient = useQueryClient();
   const [apiKey, setApiKey] = useState<string | undefined>(undefined);
   const [isApiKeySaved, setApiKeySaved] = useState<boolean>(false);
   const [characterName, setCharacterName] = useState<string | undefined>(
     undefined,
   );
-  const { data, refetch } = useUserCharacterList(characterName as string);
-  const { data: news, refetch: refetchNews } = useLostArkNews();
 
   const OpenURLButton = () => {
     const handlePress = useCallback(async () => {
@@ -48,18 +54,18 @@ export default function KeyScreen({ navigation }: { navigation: any }) {
     saveStoreData('api_key', apiKey);
 
     try {
-      // 뉴스 조회가 되지 않을시 유효한 api key가 아님
-      await refetchNews();
-      if (news) {
+      const newsData = await useLostArkNews(queryClient);
+      console.log(newsData);
+      if (newsData) {
         setApiKeySaved(true);
+      }
+
+      if (!newsData) {
+        deleteStoreData('api_key');
+        alert('API KEY를 확인해 주세요.');
       }
     } catch (error) {
       console.log(error);
-
-      if (!news) {
-        deleteStoreData('character');
-        alert('존재하지 않는 캐릭터명입니다.');
-      }
     }
   };
 
@@ -67,9 +73,11 @@ export default function KeyScreen({ navigation }: { navigation: any }) {
     if (!characterName) return alert('캐릭터명을 입력해 주세요');
 
     try {
-      await refetch();
-      if (data) {
-        const targetCharacter = data.find(
+      const characterData: CharacterListTypes[] | undefined =
+        await useUserCharacterList(queryClient, characterName);
+
+      if (characterData) {
+        const targetCharacter = characterData.find(
           (v) => v.CharacterName === characterName,
         );
 
@@ -80,13 +88,13 @@ export default function KeyScreen({ navigation }: { navigation: any }) {
 
         navigation.navigate('Main');
       }
-    } catch (error) {
-      console.log(error);
 
-      if (!data) {
+      if (!characterData) {
         deleteStoreData('character');
         alert('존재하지 않는 캐릭터명입니다.');
       }
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -97,14 +105,13 @@ export default function KeyScreen({ navigation }: { navigation: any }) {
 
       console.log('저장된 값', key, character, isApiKeySaved);
 
-      if (key && !character) setApiKeySaved(true);
+      if (key && !character) setApiKeySaved(false);
       if (key && character) navigation.navigate('Main');
     }
 
     getStoredAllData();
   }, []);
 
-  console.log('쿼리 데이터', data, news);
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>로아 생활 체크</Text>
