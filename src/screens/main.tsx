@@ -14,6 +14,7 @@ import DropDownPicker from 'react-native-dropdown-picker';
 import CharacterBox from '@src/components/character';
 import { CharacterListTypes } from '@src/types/characters';
 import { useQueryClient } from '@tanstack/react-query';
+import { useUserCharacterList } from '@src/api/api';
 
 export default function MainScreen({ navigation }: { navigation: any }) {
   const queryClient = useQueryClient();
@@ -24,6 +25,7 @@ export default function MainScreen({ navigation }: { navigation: any }) {
   const [characterName, setCharacterName] = useState<string | undefined>(
     undefined,
   );
+  const { refetch } = useUserCharacterList(characterName as string);
   const characterData: CharacterListTypes[] | undefined =
     queryClient.getQueryData(['character', characterName]);
 
@@ -63,6 +65,7 @@ export default function MainScreen({ navigation }: { navigation: any }) {
     async function fetchCharacterList() {
       const storedServer = currentServer || (await getStoreData('server'));
 
+      if (!characterData) refetch();
       if (characterData) {
         const serverList = getAllServers(characterData);
         const filteredData = filterCharacters(
