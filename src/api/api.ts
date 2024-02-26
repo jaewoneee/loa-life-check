@@ -1,7 +1,6 @@
 import axiosFetch from '@src/config/axios';
 import { URL } from '@src/constants/url';
-import { CharacterListTypes } from '@src/types/characters';
-import { QueryClient, UseQueryResult, useQuery } from '@tanstack/react-query';
+import { QueryClient } from '@tanstack/react-query';
 
 const getLostArkNews = async () =>
   await axiosFetch({
@@ -27,18 +26,4 @@ const useUserCharacterList = async (qc: QueryClient, characterName: string) => {
   });
 };
 
-// const useUserCharacterList = (
-//   name: string,
-// ): UseQueryResult<CharacterListTypes[]> =>
-//   useQuery({
-//     queryKey: ['character', name],
-//     queryFn: () => getUserCharacterList(name as string),
-//     enabled: false,
-//   });
-
-export {
-  getLostArkNews,
-  getUserCharacterList,
-  useLostArkNews,
-  useUserCharacterList,
-};
+export { useLostArkNews, useUserCharacterList };

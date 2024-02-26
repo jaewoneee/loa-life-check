@@ -63,26 +63,30 @@ export default function MainScreen({ navigation }: { navigation: any }) {
 
   useEffect(() => {
     async function fetchCharacterList() {
-      let cachedData = characterData;
-      const storedServer = currentServer || (await getStoreData('server'));
+      try {
+        let cachedData = characterData;
+        const storedServer = currentServer || (await getStoreData('server'));
 
-      if (!characterData) {
-        cachedData = await useUserCharacterList(
-          queryClient,
-          characterName as string,
-        );
-      }
+        if (!characterData) {
+          cachedData = await useUserCharacterList(
+            queryClient,
+            characterName as string,
+          );
+        }
 
-      if (cachedData) {
-        const serverList = getAllServers(cachedData);
-        const filteredData = filterCharacters(
-          cachedData,
-          storedServer as string,
-        );
+        if (cachedData) {
+          const serverList = getAllServers(cachedData);
+          const filteredData = filterCharacters(
+            cachedData,
+            storedServer as string,
+          );
 
-        setServerList(serverList);
-        setCurrentServer(storedServer as string);
-        setCharacters(filteredData);
+          setServerList(serverList);
+          setCurrentServer(storedServer as string);
+          setCharacters(filteredData);
+        }
+      } catch (error) {
+        console.error('Error fetching character list:', error);
       }
     }
 

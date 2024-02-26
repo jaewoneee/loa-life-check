@@ -11,12 +11,7 @@ import {
   Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import {
-  getLostArkNews,
-  getUserCharacterList,
-  useUserCharacterList,
-  useLostArkNews,
-} from '@src/api/api';
+import { useUserCharacterList, useLostArkNews } from '@src/api/api';
 import { getStoreData, deleteStoreData, saveStoreData } from '@src/libs/utils';
 import { useQueryClient } from '@tanstack/react-query';
 import { CharacterListTypes } from '@src/types/characters';
@@ -55,7 +50,7 @@ export default function KeyScreen({ navigation }: { navigation: any }) {
 
     try {
       const newsData = await useLostArkNews(queryClient);
-      console.log(newsData);
+
       if (newsData) {
         setApiKeySaved(true);
       }
