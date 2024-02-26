@@ -15,8 +15,10 @@ import CharacterBox from '@src/components/character';
 import { CharacterListTypes } from '@src/types/characters';
 import { useQueryClient } from '@tanstack/react-query';
 import { useUserCharacterList } from '@src/api/api';
+import { useTheme } from '@react-navigation/native';
 
 export default function MainScreen({ navigation }: { navigation: any }) {
+  const { colors } = useTheme();
   const queryClient = useQueryClient();
   const [isOpen, setOpen] = useState<boolean>(false);
   const [characterList, setCharacterList] = useState<
@@ -98,9 +100,13 @@ export default function MainScreen({ navigation }: { navigation: any }) {
   if (!characterList) return;
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={{ ...styles.container, backgroundColor: colors.background }}
+    >
       <View style={styles.top}>
-        <Text style={styles.title}>레이드 현황</Text>
+        <Text style={{ ...styles.title, color: colors.primary }}>
+          레이드 현황
+        </Text>
         <TouchableOpacity onPress={() => navigation.navigate('Setting')}>
           <Ionicons name="settings-outline" size={24} color="black" />
         </TouchableOpacity>
@@ -115,10 +121,10 @@ export default function MainScreen({ navigation }: { navigation: any }) {
           style={styles.input}
         />
       </View>
-      {/* 상위 6개 캐릭터만 보여주기 */}
+
       <FlatList
         style={styles.list}
-        data={characterList.slice(0, 6)}
+        data={characterList}
         keyExtractor={(item) => item.CharacterName}
         renderItem={({ item }) => <CharacterBox data={item} />}
       />
@@ -150,7 +156,6 @@ const styles = StyleSheet.create({
     fontSize: 24,
     textAlign: 'center',
     fontWeight: 'bold',
-    color: '#333333',
   },
   text: {
     textAlign: 'center',

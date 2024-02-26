@@ -1,10 +1,14 @@
-import { StyleSheet, Text, View } from 'react-native';
-import KeyScreen from '@src/screens/key';
-import { NavigationContainer } from '@react-navigation/native';
+import { useColorScheme } from 'react-native';
+import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import MainScreen from '@src/screens/main';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+import KeyScreen from '@src/screens/key';
+import MainScreen from '@src/screens/main';
 import SettingScreen from '@src/screens/setting';
+import { StatusBar } from 'expo-status-bar';
+import { DarkTheme } from '@src/styles/theme';
+import { Appearance } from 'react-native';
 
 const Stack = createNativeStackNavigator();
 const queryClient = new QueryClient({
@@ -16,9 +20,14 @@ const queryClient = new QueryClient({
 });
 
 export default function App() {
+  const colorScheme = Appearance.getColorScheme();
+  const scheme = useColorScheme();
+  // const isDarkTheme = theme === 'dark';
+  console.log(scheme, colorScheme);
   return (
     <QueryClientProvider client={queryClient}>
-      <NavigationContainer>
+      <StatusBar style="auto" />
+      <NavigationContainer theme={scheme === 'dark' ? DarkTheme : DefaultTheme}>
         <Stack.Navigator>
           <Stack.Screen
             name="ApiKey"
@@ -33,19 +42,10 @@ export default function App() {
           <Stack.Screen
             name="Main"
             component={MainScreen}
-            options={{ headerShown: false }}
+            options={{ headerShown: false, gestureEnabled: false }}
           />
         </Stack.Navigator>
       </NavigationContainer>
     </QueryClientProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});

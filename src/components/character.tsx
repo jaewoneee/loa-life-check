@@ -1,3 +1,4 @@
+import { useTheme } from '@react-navigation/native';
 import { RaidDataTypes, raidData } from '@src/data/raid';
 import { CharacterListTypes } from '@src/types/characters';
 import { useEffect, useState } from 'react';
@@ -5,6 +6,7 @@ import { View, Text, StyleSheet, FlatList } from 'react-native';
 import BouncyCheckbox from 'react-native-bouncy-checkbox';
 
 export default function CharacterBox({ data }: { data: CharacterListTypes }) {
+  const { colors } = useTheme();
   const [raidList, setRaidList] = useState<RaidDataTypes[] | []>([]);
 
   const availableRaidList = () => {
@@ -38,10 +40,14 @@ export default function CharacterBox({ data }: { data: CharacterListTypes }) {
   }, []);
 
   return (
-    <View style={styles.container}>
+    <View style={{ ...styles.container, borderBottomColor: colors.border }}>
       <View style={styles.name}>
-        <Text style={styles.character}>{data.CharacterName}</Text>
-        <Text style={styles.level}>{data.ItemMaxLevel}</Text>
+        <Text style={{ ...styles.character, color: colors.text }}>
+          {data.CharacterName}
+        </Text>
+        <Text style={{ ...styles.level, color: colors.primary }}>
+          {data.ItemMaxLevel}
+        </Text>
       </View>
       <View style={styles.raid}>
         <FlatList
@@ -68,18 +74,18 @@ function RaidCheckBox({
   raid: RaidDataTypes;
   callback: (raid: RaidDataTypes) => void;
 }) {
+  const { colors } = useTheme();
   const level = Number(lv.replaceAll(',', ''));
 
   const checkboxProps = (text: string) => ({
     size: 20,
-    fillColor: '#919191',
-    unfillColor: '#FFFFFF',
+    fillColor: colors.border,
+    unfillColor: colors.border,
     text,
-    innerIconStyle: { borderWidth: 1 },
     onPress: () => callback(raid),
     style: styles.checkbox,
     isChecked: raid.isChecked,
-    textStyle: { fontSize: 14, color: '#333333' },
+    textStyle: { fontSize: 14, color: colors.text },
   });
 
   const renderCheckbox = (text: string) => (
@@ -135,7 +141,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     borderBottomWidth: 1,
-    borderBottomColor: '#cbcbcb',
+
     paddingVertical: 8,
   },
   name: {
