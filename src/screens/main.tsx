@@ -19,13 +19,15 @@ import { useUserCharacterList } from '@src/api/api';
 export default function MainScreen({ navigation }: { navigation: any }) {
   const queryClient = useQueryClient();
   const [isOpen, setOpen] = useState<boolean>(false);
-
+  const [characterList, setCharacterList] = useState<
+    CharacterListTypes[] | null
+  >(null);
   const [currentServer, setCurrentServer] = useState<string | null>(null);
   const [characterName, setCharacterName] = useState<string | undefined>(
     undefined,
   );
-  const { characters, serverList, setCharacters, setServerList } =
-    useCharacterStore();
+  const { serverList, setServerList } = useCharacterStore();
+
   const characterData: CharacterListTypes[] | undefined =
     queryClient.getQueryData(['character', characterName]);
 
@@ -81,9 +83,9 @@ export default function MainScreen({ navigation }: { navigation: any }) {
             storedServer as string,
           );
 
+          setCharacterList(filteredData);
           setServerList(serverList);
           setCurrentServer(storedServer as string);
-          setCharacters(filteredData);
         }
       } catch (error) {
         console.error('Error fetching character list:', error);
@@ -92,6 +94,8 @@ export default function MainScreen({ navigation }: { navigation: any }) {
 
     fetchCharacterList();
   }, [currentServer]);
+
+  if (!characterList) return;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -114,7 +118,7 @@ export default function MainScreen({ navigation }: { navigation: any }) {
       {/* 상위 6개 캐릭터만 보여주기 */}
       <FlatList
         style={styles.list}
-        data={characters.slice(0, 6)}
+        data={characterList.slice(0, 6)}
         keyExtractor={(item) => item.CharacterName}
         renderItem={({ item }) => <CharacterBox data={item} />}
       />
