@@ -94,7 +94,7 @@ export default function KeyScreen({ navigation }: { navigation: any }) {
   };
 
   useEffect(() => {
-    async function getStoredAllData() {
+    const getStoredAllData = async () => {
       const key = await getStoreData('api_key');
       const character = await getStoreData('character');
 
@@ -102,7 +102,7 @@ export default function KeyScreen({ navigation }: { navigation: any }) {
 
       if (key && !character) setApiKeySaved(false);
       if (key && character) navigation.navigate('Main');
-    }
+    };
 
     getStoredAllData();
   }, []);

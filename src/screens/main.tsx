@@ -1,4 +1,4 @@
-import { deleteStoreData, getStoreData, saveStoreData } from '@src/libs/utils';
+import { getStoreData } from '@src/libs/utils';
 import useCharacterStore from '@src/stores/useCharacters';
 import { useEffect, useState } from 'react';
 import {
@@ -16,6 +16,7 @@ import { CharacterListTypes } from '@src/types/characters';
 import { useQueryClient } from '@tanstack/react-query';
 import { useUserCharacterList } from '@src/api/api';
 import { useTheme } from '@react-navigation/native';
+import { MaterialIcons } from '@expo/vector-icons';
 
 export default function MainScreen({ navigation }: { navigation: any }) {
   const { colors } = useTheme();
@@ -66,7 +67,7 @@ export default function MainScreen({ navigation }: { navigation: any }) {
   }, []);
 
   useEffect(() => {
-    async function fetchCharacterList() {
+    const fetchCharacterList = async () => {
       try {
         let cachedData = characterData;
         const storedServer = currentServer || (await getStoreData('server'));
@@ -92,12 +93,30 @@ export default function MainScreen({ navigation }: { navigation: any }) {
       } catch (error) {
         console.error('Error fetching character list:', error);
       }
-    }
+    };
 
     fetchCharacterList();
   }, [currentServer]);
 
   if (!characterList) return;
+
+  const dropDownPickerStyleProps = {
+    style: {
+      ...styles.input,
+      borderColor: colors.border,
+      backgroundColor: colors.background,
+      paddingHorizontal: 0,
+    },
+
+    containerStyle: { backgroundColor: colors.background },
+    textStyle: { color: colors.primary, fontSize: 18 },
+    labelStyle: { padding: 0 },
+    listItemContainerStyle: {
+      backgroundColor: colors.background,
+      paddingHorizontal: 0,
+    },
+    listItemLabelStyle: { fontSize: 16 },
+  };
 
   return (
     <SafeAreaView
@@ -108,7 +127,7 @@ export default function MainScreen({ navigation }: { navigation: any }) {
           레이드 현황
         </Text>
         <TouchableOpacity onPress={() => navigation.navigate('Setting')}>
-          <Ionicons name="settings-outline" size={24} color="black" />
+          <Ionicons name="settings-outline" size={24} color={colors.text} />
         </TouchableOpacity>
       </View>
       <View style={styles.dropdownBox}>
@@ -118,7 +137,18 @@ export default function MainScreen({ navigation }: { navigation: any }) {
           items={serverList}
           setOpen={setOpen}
           setValue={setCurrentServer}
-          style={styles.input}
+          dropDownContainerStyle={{}}
+          {...dropDownPickerStyleProps}
+          flatListProps={{
+            initialNumToRender: 10,
+          }}
+          ArrowDownIconComponent={() => (
+            <MaterialIcons
+              name="keyboard-arrow-down"
+              size={26}
+              style={{ color: colors.text }}
+            />
+          )}
         />
       </View>
 
@@ -145,9 +175,11 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   dropdownBox: {
-    marginTop: 16,
+    marginVertical: 16,
     position: 'relative',
     zIndex: 100,
+    padding: 0,
+    width: 150,
   },
   list: {
     marginTop: 16,
@@ -161,15 +193,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   input: {
-    borderColor: '#6c6c6c',
-  },
-  linkBox: {
-    marginTop: 20,
-    gap: 12,
-  },
-  link: {
-    color: 'orange',
-    textAlign: 'center',
-    fontWeight: '600',
+    borderWidth: 0,
+    borderRadius: 0,
+    padding: 0,
   },
 });

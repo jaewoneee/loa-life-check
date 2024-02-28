@@ -1,3 +1,4 @@
+import { useTheme } from '@react-navigation/native';
 import CommonButton from '@src/components/button';
 import { deleteStoreData, getStoreData } from '@src/libs/utils';
 import { useQueryClient } from '@tanstack/react-query';
@@ -6,6 +7,7 @@ import { Text, StyleSheet, View, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function SettingScreen({ navigation }: { navigation: any }) {
+  const { colors } = useTheme();
   const queryClient = useQueryClient();
   const [data, setData] = useState<{
     key?: string;
@@ -30,7 +32,7 @@ export default function SettingScreen({ navigation }: { navigation: any }) {
         onPress: () => console.log('Cancel Pressed'),
         style: 'cancel',
       },
-      { text: 'OK', onPress: () => deleteAllStoredData() },
+      { text: 'OK', onPress: deleteAllStoredData },
     ]);
 
   useEffect(() => {
@@ -47,15 +49,21 @@ export default function SettingScreen({ navigation }: { navigation: any }) {
 
   return (
     <View style={styles.container}>
-      <View style={styles.box}>
-        <Text style={styles.title}>나의 API KEY</Text>
+      <View style={{ ...styles.box, borderBottomColor: colors.border }}>
+        <Text style={{ ...styles.title, color: colors.text }}>
+          나의 API KEY
+        </Text>
         <Text
-          style={styles.value}
+          style={{ ...styles.value, color: colors.primary }}
         >{`${data.key?.slice(0, 10)}...${data.key?.slice(-10)}`}</Text>
       </View>
       <View style={[styles.box, styles.noBorder]}>
-        <Text style={styles.title}>나의 대표 캐릭터</Text>
-        <Text style={styles.value}>{data.name}</Text>
+        <Text style={{ ...styles.title, color: colors.text }}>
+          나의 대표 캐릭터
+        </Text>
+        <Text style={{ ...styles.value, color: colors.primary }}>
+          {data.name}
+        </Text>
       </View>
       <CommonButton text={'설정 초기화'} callback={confirmDeletingData} />
     </View>
@@ -71,7 +79,6 @@ const styles = StyleSheet.create({
     gap: 8,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#cbcbcb',
   },
   noBorder: {
     borderBottomWidth: 0,
