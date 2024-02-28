@@ -1,11 +1,11 @@
 import { useTheme } from '@react-navigation/native';
 import { RaidDataTypes, raidData } from '@src/data/raid';
 import { CharacterListTypes } from '@src/types/characters';
-import { useEffect, useState } from 'react';
+import { memo, useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList } from 'react-native';
 import BouncyCheckbox from 'react-native-bouncy-checkbox';
 
-export default function CharacterBox({ data }: { data: CharacterListTypes }) {
+function CharacterBox({ data }: { data: CharacterListTypes }) {
   const { colors } = useTheme();
   const [raidList, setRaidList] = useState<RaidDataTypes[] | []>([]);
 
@@ -156,3 +156,8 @@ const styles = StyleSheet.create({
   raid: { flex: 1 },
   checkbox: { marginBottom: 6 },
 });
+
+// VirtualizedList: You have a large list that is slow to update - make sure your renderItem function renders components that follow React performance best practices like PureComponent, shouldComponentUpdate, etc.
+// 불필요한 렌더링 방지용
+
+export default memo(CharacterBox);

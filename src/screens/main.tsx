@@ -7,6 +7,7 @@ import {
   View,
   TouchableOpacity,
   FlatList,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -107,10 +108,8 @@ export default function MainScreen({ navigation }: { navigation: any }) {
       backgroundColor: colors.background,
       paddingHorizontal: 0,
     },
-
     containerStyle: { backgroundColor: colors.background },
     textStyle: { color: colors.primary, fontSize: 18 },
-    labelStyle: { padding: 0 },
     listItemContainerStyle: {
       backgroundColor: colors.background,
       paddingHorizontal: 0,
@@ -119,46 +118,43 @@ export default function MainScreen({ navigation }: { navigation: any }) {
   };
 
   return (
-    <SafeAreaView
-      style={{ ...styles.container, backgroundColor: colors.background }}
-    >
-      <View style={styles.top}>
-        <Text style={{ ...styles.title, color: colors.primary }}>
-          레이드 현황
-        </Text>
-        <TouchableOpacity onPress={() => navigation.navigate('Setting')}>
-          <Ionicons name="settings-outline" size={24} color={colors.text} />
-        </TouchableOpacity>
-      </View>
-      <View style={styles.dropdownBox}>
-        <DropDownPicker
-          open={isOpen}
-          value={currentServer}
-          items={serverList}
-          setOpen={setOpen}
-          setValue={setCurrentServer}
-          dropDownContainerStyle={{}}
-          {...dropDownPickerStyleProps}
-          flatListProps={{
-            initialNumToRender: 10,
-          }}
-          ArrowDownIconComponent={() => (
-            <MaterialIcons
-              name="keyboard-arrow-down"
-              size={26}
-              style={{ color: colors.text }}
-            />
-          )}
+    <TouchableWithoutFeedback onPress={() => setOpen(false)}>
+      <SafeAreaView
+        style={{ ...styles.container, backgroundColor: colors.background }}
+      >
+        <View style={styles.top}>
+          <Text style={{ ...styles.title, color: colors.primary }}>
+            레이드 현황
+          </Text>
+          <TouchableOpacity onPress={() => navigation.navigate('Setting')}>
+            <Ionicons name="settings-outline" size={24} color={colors.text} />
+          </TouchableOpacity>
+        </View>
+        <View style={styles.dropdownBox}>
+          <DropDownPicker
+            open={isOpen}
+            value={currentServer}
+            items={serverList}
+            setOpen={setOpen}
+            setValue={setCurrentServer}
+            {...dropDownPickerStyleProps}
+            ArrowDownIconComponent={() => (
+              <MaterialIcons
+                name="keyboard-arrow-down"
+                size={26}
+                style={{ color: colors.text }}
+              />
+            )}
+          />
+        </View>
+        <FlatList
+          style={styles.list}
+          data={characterList}
+          keyExtractor={(item) => item.CharacterName}
+          renderItem={({ item }) => <CharacterBox data={item} />}
         />
-      </View>
-
-      <FlatList
-        style={styles.list}
-        data={characterList}
-        keyExtractor={(item) => item.CharacterName}
-        renderItem={({ item }) => <CharacterBox data={item} />}
-      />
-    </SafeAreaView>
+      </SafeAreaView>
+    </TouchableWithoutFeedback>
   );
 }
 
