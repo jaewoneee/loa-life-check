@@ -1,5 +1,5 @@
 import { useColorScheme } from 'react-native';
-import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
@@ -7,7 +7,7 @@ import KeyScreen from '@src/screens/key';
 import MainScreen from '@src/screens/main';
 import SettingScreen from '@src/screens/setting';
 import { StatusBar } from 'expo-status-bar';
-import { DarkTheme } from '@src/styles/theme';
+import { DarkTheme, DefaultTheme } from '@src/styles/theme';
 import { Appearance } from 'react-native';
 
 const Stack = createNativeStackNavigator();
