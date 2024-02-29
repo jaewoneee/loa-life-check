@@ -1,6 +1,6 @@
 import { getStoreData } from '@src/libs/utils';
 import useCharacterStore from '@src/stores/useCharacters';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   Text,
   StyleSheet,
@@ -18,6 +18,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useUserCharacterList } from '@src/api/api';
 import { useTheme } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
+import { raidData } from '@src/data/raid';
 
 export default function MainScreen({ navigation }: { navigation: any }) {
   const { colors } = useTheme();
@@ -33,7 +34,7 @@ export default function MainScreen({ navigation }: { navigation: any }) {
   const { serverList, setServerList } = useCharacterStore();
 
   const characterData: CharacterListTypes[] | undefined =
-    queryClient.getQueryData(['character', characterName]);
+    queryClient.getQueryData(['character', characterName as string]);
 
   const getAllServers = (data: CharacterListTypes[]) => {
     const rawList = data.map((v) => v.ServerName);
@@ -43,20 +44,30 @@ export default function MainScreen({ navigation }: { navigation: any }) {
 
     return serverList;
   };
+  console.log(3);
+  const filterCharacters = useCallback(
+    (data: CharacterListTypes[], mainServer: string) => {
+      // 레이드 입장가능 최소 레벨
+      const minLevel = raidData[raidData.length - 1].ilvl;
 
-  const filterCharacters = (data: CharacterListTypes[], mainServer: string) => {
-    // 유저가 입력한 대표캐릭터의 서버를 기준으로 한다
-    const charactersByServer = data.filter((v) => v.ServerName === mainServer);
+      // 유저가 입력한 대표캐릭터의 서버를 기준으로 한다
+      const charactersByServer = data.filter(
+        (v) =>
+          Number(v.ItemMaxLevel.replace(',', '')) >= minLevel &&
+          v.ServerName === mainServer,
+      );
 
-    // 레벨순으로 캐릭터를 재정렬한다
-    const characatersByLevel = charactersByServer.sort(
-      (a, b) =>
-        Number(b.ItemMaxLevel.replace(',', '')) -
-        Number(a.ItemMaxLevel.replace(',', '')),
-    );
+      // 레벨순으로 캐릭터를 재정렬한다
+      const characatersByLevel = charactersByServer.sort(
+        (a, b) =>
+          Number(b.ItemMaxLevel.replace(',', '')) -
+          Number(a.ItemMaxLevel.replace(',', '')),
+      );
 
-    return characatersByLevel;
-  };
+      return characatersByLevel;
+    },
+    [],
+  );
 
   useEffect(() => {
     const setStateValue = async () => {
@@ -99,8 +110,6 @@ export default function MainScreen({ navigation }: { navigation: any }) {
     fetchCharacterList();
   }, [currentServer]);
 
-  if (!characterList) return;
-
   const dropDownPickerStyleProps = {
     style: {
       ...styles.input,
@@ -117,6 +126,7 @@ export default function MainScreen({ navigation }: { navigation: any }) {
     listItemLabelStyle: { fontSize: 16 },
   };
 
+  if (!characterList) return;
   return (
     <TouchableWithoutFeedback onPress={() => setOpen(false)}>
       <SafeAreaView
@@ -184,9 +194,6 @@ const styles = StyleSheet.create({
     fontSize: 24,
     textAlign: 'center',
     fontWeight: 'bold',
-  },
-  text: {
-    textAlign: 'center',
   },
   input: {
     borderWidth: 0,

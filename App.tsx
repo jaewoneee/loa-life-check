@@ -22,7 +22,7 @@ const queryClient = new QueryClient({
 export default function App() {
   const colorScheme = Appearance.getColorScheme();
   const scheme = useColorScheme();
-  // const isDarkTheme = theme === 'dark';
+
   console.log(scheme, colorScheme);
   return (
     <QueryClientProvider client={queryClient}>

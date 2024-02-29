@@ -33,9 +33,3 @@ const raidData: RaidDataTypes[] = [
 ];
 
 export { raidData };
-
-// 한 캐릭당 3개씩
-// 1605;
-// 상노탑;
-// 하칸;
-// 하브14

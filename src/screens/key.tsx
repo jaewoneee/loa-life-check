@@ -15,8 +15,10 @@ import { useUserCharacterList, useLostArkNews } from '@src/api/api';
 import { getStoreData, deleteStoreData, saveStoreData } from '@src/libs/utils';
 import { useQueryClient } from '@tanstack/react-query';
 import { CharacterListTypes } from '@src/types/characters';
+import { useTheme } from '@react-navigation/native';
 
 export default function KeyScreen({ navigation }: { navigation: any }) {
+  const { colors } = useTheme();
   const queryClient = useQueryClient();
   const [apiKey, setApiKey] = useState<string | undefined>(undefined);
   const [isApiKeySaved, setApiKeySaved] = useState<boolean>(false);
@@ -70,7 +72,7 @@ export default function KeyScreen({ navigation }: { navigation: any }) {
     try {
       const characterData: CharacterListTypes[] | undefined =
         await useUserCharacterList(queryClient, characterName);
-
+      console.log(2);
       if (characterData) {
         const targetCharacter = characterData.find(
           (v) => v.CharacterName === characterName,
@@ -103,33 +105,45 @@ export default function KeyScreen({ navigation }: { navigation: any }) {
       if (key && !character) setApiKeySaved(false);
       if (key && character) navigation.navigate('Main');
     };
-
+    console.log(1);
     getStoredAllData();
   }, []);
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>로아 생활 체크</Text>
+    <SafeAreaView
+      style={{ ...styles.container, backgroundColor: colors.background }}
+    >
+      <Text style={{ ...styles.title, color: colors.point }}>
+        로아 생활 체크
+      </Text>
       {!isApiKeySaved ? (
         <>
-          <Text style={styles.text}>
+          <Text style={{ ...styles.text, color: colors.text }}>
             로생첵 서비스 이용을 위해 로스트아크 API KEY가 필요합니다.
           </Text>
           <TextInput
             placeholder="API KEY를 입력해 주세요"
-            style={styles.input}
+            style={{
+              ...styles.input,
+              borderColor: colors.border,
+              color: colors.text,
+            }}
             value={apiKey}
             onChangeText={(val) => setApiKey(val)}
           />
           <CommonButton text={'다음'} callback={checkApiKeyAvailability} />
           <View style={styles.linkBox}>
-            <Text style={styles.text}>로스트아크 API KEY가 없으시다면?</Text>
+            <Text style={{ ...styles.text, color: colors.text }}>
+              로스트아크 API KEY가 없으시다면?
+            </Text>
             <OpenURLButton />
           </View>
         </>
       ) : (
         <>
-          <Text style={styles.text}>대표 캐릭터명을 입력해 주세요</Text>
+          <Text style={{ ...styles.text, color: colors.text }}>
+            대표 캐릭터명을 입력해 주세요
+          </Text>
           <TextInput
             placeholder="캐릭터명"
             style={styles.input}
@@ -161,7 +175,6 @@ const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 1,
-    borderColor: '#6c6c6c',
     padding: 16,
     borderRadius: 8,
   },

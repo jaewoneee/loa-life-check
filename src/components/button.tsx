@@ -1,3 +1,4 @@
+import { useTheme } from '@react-navigation/native';
 import { TouchableHighlight, Text, StyleSheet } from 'react-native';
 
 export default function CommonButton({
@@ -7,9 +8,13 @@ export default function CommonButton({
   text: string;
   callback?: () => void;
 }) {
+  const { colors } = useTheme();
   return (
-    <TouchableHighlight onPress={callback} style={styles.container}>
-      <Text style={styles.text}>{text}</Text>
+    <TouchableHighlight
+      onPress={callback}
+      style={{ ...styles.container, backgroundColor: colors.card }}
+    >
+      <Text style={{ ...styles.text, color: colors.text }}>{text}</Text>
     </TouchableHighlight>
   );
 }
@@ -17,13 +22,11 @@ export default function CommonButton({
 const styles = StyleSheet.create({
   container: {
     borderRadius: 8,
-    backgroundColor: '#333333',
     paddingVertical: 16,
   },
   text: {
     fontSize: 16,
     textAlign: 'center',
     fontWeight: 'bold',
-    color: '#fff',
   },
 });
