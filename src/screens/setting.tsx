@@ -54,14 +54,14 @@ export default function SettingScreen({ navigation }: { navigation: any }) {
           나의 API KEY
         </Text>
         <Text
-          style={{ ...styles.value, color: colors.primary }}
+          style={{ ...styles.value, color: colors.title }}
         >{`${data.key?.slice(0, 10)}...${data.key?.slice(-10)}`}</Text>
       </View>
       <View style={[styles.box, styles.noBorder]}>
         <Text style={{ ...styles.title, color: colors.text }}>
           나의 대표 캐릭터
         </Text>
-        <Text style={{ ...styles.value, color: colors.primary }}>
+        <Text style={{ ...styles.value, color: colors.title }}>
           {data.name}
         </Text>
       </View>

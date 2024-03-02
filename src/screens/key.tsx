@@ -39,7 +39,9 @@ export default function KeyScreen({ navigation }: { navigation: any }) {
 
     return (
       <TouchableOpacity onPress={handlePress}>
-        <Text style={styles.link}>API KEY 확인하기</Text>
+        <Text style={{ ...styles.link, color: colors.point }}>
+          API KEY 확인하기
+        </Text>
       </TouchableOpacity>
     );
   };
@@ -72,7 +74,7 @@ export default function KeyScreen({ navigation }: { navigation: any }) {
     try {
       const characterData: CharacterListTypes[] | undefined =
         await useUserCharacterList(queryClient, characterName);
-      console.log(2);
+
       if (characterData) {
         const targetCharacter = characterData.find(
           (v) => v.CharacterName === characterName,
@@ -105,7 +107,7 @@ export default function KeyScreen({ navigation }: { navigation: any }) {
       if (key && !character) setApiKeySaved(false);
       if (key && character) navigation.navigate('Main');
     };
-    console.log(1);
+
     getStoredAllData();
   }, []);
 
@@ -146,7 +148,11 @@ export default function KeyScreen({ navigation }: { navigation: any }) {
           </Text>
           <TextInput
             placeholder="캐릭터명"
-            style={styles.input}
+            style={{
+              ...styles.input,
+              borderColor: colors.border,
+              color: colors.text,
+            }}
             value={characterName}
             onChangeText={(val) => setCharacterName(val)}
           />

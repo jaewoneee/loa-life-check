@@ -17,8 +17,8 @@ import { CharacterListTypes } from '@src/types/characters';
 import { useQueryClient } from '@tanstack/react-query';
 import { useUserCharacterList } from '@src/api/api';
 import { useTheme } from '@react-navigation/native';
-import { MaterialIcons } from '@expo/vector-icons';
 import { raidData } from '@src/data/raid';
+import { MaterialIcons } from '@expo/vector-icons';
 
 export default function MainScreen({ navigation }: { navigation: any }) {
   const { colors } = useTheme();
@@ -44,16 +44,16 @@ export default function MainScreen({ navigation }: { navigation: any }) {
 
     return serverList;
   };
-  console.log(3);
+
   const filterCharacters = useCallback(
     (data: CharacterListTypes[], mainServer: string) => {
       // 레이드 입장가능 최소 레벨
-      const minLevel = raidData[raidData.length - 1].ilvl;
+      const MIN_LEVEL = raidData[raidData.length - 1].ilvl;
 
       // 유저가 입력한 대표캐릭터의 서버를 기준으로 한다
       const charactersByServer = data.filter(
         (v) =>
-          Number(v.ItemMaxLevel.replace(',', '')) >= minLevel &&
+          Number(v.ItemMaxLevel.replace(',', '')) >= MIN_LEVEL &&
           v.ServerName === mainServer,
       );
 
@@ -69,25 +69,26 @@ export default function MainScreen({ navigation }: { navigation: any }) {
     [],
   );
 
-  useEffect(() => {
-    const setStateValue = async () => {
-      const name = await getStoreData('character');
-      setCharacterName(name as string);
-    };
+  // useEffect(() => {
+  //   const setStateValue = async () => {
+  //     const name = await getStoreData('character');
+  //     setCharacterName(name as string);
+  //   };
 
-    setStateValue();
-  }, []);
+  //   setStateValue();
+  // }, []);
 
   useEffect(() => {
     const fetchCharacterList = async () => {
       try {
         let cachedData = characterData;
         const storedServer = currentServer || (await getStoreData('server'));
+        const storedName = await getStoreData('character');
 
         if (!characterData) {
           cachedData = await useUserCharacterList(
             queryClient,
-            characterName as string,
+            storedName as string,
           );
         }
 
@@ -98,6 +99,7 @@ export default function MainScreen({ navigation }: { navigation: any }) {
             storedServer as string,
           );
 
+          setCharacterName(storedName);
           setCharacterList(filteredData);
           setServerList(serverList);
           setCurrentServer(storedServer as string);
@@ -113,17 +115,19 @@ export default function MainScreen({ navigation }: { navigation: any }) {
   const dropDownPickerStyleProps = {
     style: {
       ...styles.input,
-      borderColor: colors.border,
       backgroundColor: colors.background,
       paddingHorizontal: 0,
     },
     containerStyle: { backgroundColor: colors.background },
-    textStyle: { color: colors.primary, fontSize: 18 },
+    textStyle: { color: colors.title, fontSize: 16 },
     listItemContainerStyle: {
-      backgroundColor: colors.background,
       paddingHorizontal: 0,
     },
-    listItemLabelStyle: { fontSize: 16 },
+    listItemLabelStyle: { fontSize: 14, color: colors.title },
+    dropDownContainerStyle: {
+      ...styles.list,
+      backgroundColor: colors.box,
+    },
   };
 
   if (!characterList) return;
@@ -133,7 +137,7 @@ export default function MainScreen({ navigation }: { navigation: any }) {
         style={{ ...styles.container, backgroundColor: colors.background }}
       >
         <View style={styles.top}>
-          <Text style={{ ...styles.title, color: colors.primary }}>
+          <Text style={{ ...styles.title, color: colors.title }}>
             레이드 현황
           </Text>
           <TouchableOpacity onPress={() => navigation.navigate('Setting')}>
@@ -147,21 +151,33 @@ export default function MainScreen({ navigation }: { navigation: any }) {
             items={serverList}
             setOpen={setOpen}
             setValue={setCurrentServer}
-            {...dropDownPickerStyleProps}
-            ArrowDownIconComponent={() => (
+            ArrowDownIconComponent={({ style }) => (
               <MaterialIcons
                 name="keyboard-arrow-down"
-                size={26}
-                style={{ color: colors.text }}
+                size={24}
+                color={colors.text}
               />
             )}
+            ArrowUpIconComponent={({ style }) => (
+              <MaterialIcons
+                name="keyboard-arrow-up"
+                size={24}
+                color={colors.text}
+              />
+            )}
+            {...dropDownPickerStyleProps}
           />
         </View>
         <FlatList
-          style={styles.list}
+          style={{ flex: 1 }}
           data={characterList}
           keyExtractor={(item) => item.CharacterName}
-          renderItem={({ item }) => <CharacterBox data={item} />}
+          renderItem={({ item, index }) => (
+            <CharacterBox
+              data={item}
+              lastItem={characterList.length - 1 === index}
+            />
+          )}
         />
       </SafeAreaView>
     </TouchableWithoutFeedback>
@@ -188,7 +204,9 @@ const styles = StyleSheet.create({
     width: 150,
   },
   list: {
-    marginTop: 16,
+    paddingHorizontal: 8,
+    borderRadius: 0,
+    borderWidth: 0,
   },
   title: {
     fontSize: 24,

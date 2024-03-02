@@ -14,7 +14,7 @@ export default function CommonButton({
       onPress={callback}
       style={{ ...styles.container, backgroundColor: colors.card }}
     >
-      <Text style={{ ...styles.text, color: colors.text }}>{text}</Text>
+      <Text style={{ ...styles.text }}>{text}</Text>
     </TouchableHighlight>
   );
 }
@@ -28,5 +28,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: 'center',
     fontWeight: 'bold',
+    color: '#f9fafb',
   },
 });

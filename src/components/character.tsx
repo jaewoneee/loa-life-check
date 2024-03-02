@@ -5,7 +5,13 @@ import { memo, useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList } from 'react-native';
 import BouncyCheckbox from 'react-native-bouncy-checkbox';
 
-function CharacterBox({ data }: { data: CharacterListTypes }) {
+function CharacterBox({
+  data,
+  lastItem,
+}: {
+  data: CharacterListTypes;
+  lastItem: boolean;
+}) {
   const { colors } = useTheme();
   const [raidList, setRaidList] = useState<RaidDataTypes[] | []>([]);
 
@@ -40,23 +46,32 @@ function CharacterBox({ data }: { data: CharacterListTypes }) {
   }, []);
 
   return (
-    <View style={{ ...styles.container, borderBottomColor: colors.border }}>
+    <View
+      style={{
+        ...styles.container,
+        borderBottomColor: colors.border,
+        borderBottomWidth: lastItem ? 0 : 1,
+      }}
+    >
       <View style={styles.name}>
         <Text style={{ ...styles.character, color: colors.text }}>
           {data.CharacterName}
         </Text>
-        <Text style={{ ...styles.level, color: colors.primary }}>
+        <Text style={{ ...styles.level, color: colors.title }}>
           {data.ItemMaxLevel}
         </Text>
       </View>
       <View style={styles.raid}>
         <FlatList
+          style={styles.raid}
           data={raidList}
-          renderItem={({ item }) => (
+          keyExtractor={(item) => item.name}
+          renderItem={({ item, index }) => (
             <RaidCheckBox
               raid={item}
               lv={data.ItemMaxLevel}
               callback={checkRaid}
+              firstItem={index === 0}
             />
           )}
         />
@@ -69,22 +84,25 @@ function RaidCheckBox({
   lv,
   raid,
   callback,
+  firstItem,
 }: {
   lv: string;
   raid: RaidDataTypes;
   callback: (raid: RaidDataTypes) => void;
+  firstItem: boolean;
 }) {
   const { colors } = useTheme();
   const level = Number(lv.replaceAll(',', ''));
 
   const checkboxProps = (text: string) => ({
     size: 20,
-    fillColor: colors.border,
+    fillColor: colors.point,
     unfillColor: colors.border,
     text,
+    style: { marginTop: firstItem ? 0 : 14 },
     onPress: () => callback(raid),
-    style: styles.checkbox,
     isChecked: raid.isChecked,
+    innerIconStyle: { borderWidth: 0 },
     textStyle: { fontSize: 14, color: colors.text },
   });
 
@@ -95,33 +113,33 @@ function RaidCheckBox({
   const renderBrelshaza = () => {
     if (raid.phase === 2) {
       return (
-        <View>
+        <>
           {renderCheckbox(`${raid.name} ${raid.difficulty} 1-2`)}
           {renderCheckbox(`${raid.name} ${level >= 1550 ? '하드' : '노말'} 3`)}
           {renderCheckbox(`${raid.name} ${level >= 1560 ? '하드' : '노말'} 4`)}
-        </View>
+        </>
       );
     }
 
     return (
-      <View>
+      <>
         {renderCheckbox(`${raid.name} ${raid.difficulty} 1-3`)}
         {renderCheckbox(`${raid.name} ${level >= 1560 ? '하드' : '노말'} 4`)}
-      </View>
+      </>
     );
   };
 
   const renderKamen = () => {
     if (raid.phase === 4) {
       return (
-        <View>
+        <>
           {renderCheckbox(`${raid.name} ${raid.difficulty} 1-3`)}
           {renderCheckbox(`${raid.name} 하드 4`)}
-        </View>
+        </>
       );
     }
 
-    return <View>{renderCheckbox(`${raid.name} ${raid.difficulty} 1-3`)}</View>;
+    return <>{renderCheckbox(`${raid.name} ${raid.difficulty} 1-3`)}</>;
   };
 
   if (raid.name === '아브렐슈드') {
@@ -132,17 +150,14 @@ function RaidCheckBox({
     return renderKamen();
   }
 
-  return <View>{renderCheckbox(`${raid.name} ${raid.difficulty}`)}</View>;
+  return <>{renderCheckbox(`${raid.name} ${raid.difficulty}`)}</>;
 }
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 10,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    borderBottomWidth: 1,
-
-    paddingVertical: 8,
+    paddingVertical: 16,
   },
   name: {
     flexDirection: 'column',
@@ -153,8 +168,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   level: { fontWeight: 'bold', marginTop: 6 },
-  raid: { flex: 1 },
-  checkbox: { marginBottom: 6 },
+  raid: { flex: 1, flexDirection: 'column' },
 });
 
 // VirtualizedList: You have a large list that is slow to update - make sure your renderItem function renders components that follow React performance best practices like PureComponent, shouldComponentUpdate, etc.
