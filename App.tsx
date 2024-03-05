@@ -9,6 +9,7 @@ import SettingScreen from '@src/screens/setting';
 import { StatusBar } from 'expo-status-bar';
 import { DarkTheme, DefaultTheme } from '@src/styles/theme';
 import { Appearance } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 const Stack = createNativeStackNavigator();
 const queryClient = new QueryClient({
@@ -25,27 +26,31 @@ export default function App() {
 
   console.log(scheme, colorScheme);
   return (
-    <QueryClientProvider client={queryClient}>
-      <StatusBar style="auto" />
-      <NavigationContainer theme={scheme === 'dark' ? DarkTheme : DefaultTheme}>
-        <Stack.Navigator>
-          <Stack.Screen
-            name="ApiKey"
-            component={KeyScreen}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="Setting"
-            component={SettingScreen}
-            // options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="Main"
-            component={MainScreen}
-            options={{ headerShown: false, gestureEnabled: false }}
-          />
-        </Stack.Navigator>
-      </NavigationContainer>
-    </QueryClientProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <QueryClientProvider client={queryClient}>
+        <StatusBar style="auto" />
+        <NavigationContainer
+          theme={scheme === 'dark' ? DarkTheme : DefaultTheme}
+        >
+          <Stack.Navigator>
+            <Stack.Screen
+              name="ApiKey"
+              component={KeyScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="Setting"
+              component={SettingScreen}
+              // options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="Main"
+              component={MainScreen}
+              options={{ headerShown: false, gestureEnabled: false }}
+            />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </QueryClientProvider>
+    </GestureHandlerRootView>
   );
 }

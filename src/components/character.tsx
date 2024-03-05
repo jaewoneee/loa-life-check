@@ -1,8 +1,8 @@
 import { useTheme } from '@react-navigation/native';
 import { RaidDataTypes, raidData } from '@src/data/raid';
 import { CharacterListTypes } from '@src/types/characters';
-import { memo, useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList } from 'react-native';
+import { memo, useCallback, useEffect, useState } from 'react';
+import { View, Text, StyleSheet, FlatList, ScrollView } from 'react-native';
 import BouncyCheckbox from 'react-native-bouncy-checkbox';
 
 function CharacterBox({
@@ -28,7 +28,7 @@ function CharacterBox({
     return raidArray;
   };
 
-  const checkRaid = (raid: RaidDataTypes) => {
+  const checkRaid = useCallback((raid: RaidDataTypes) => {
     const targetRaid = raidList.find((v) => v.name === raid.name);
 
     if (!targetRaid) return;
@@ -38,7 +38,7 @@ function CharacterBox({
       const newArray = new Set([...state, targetRaid]);
       return [...newArray];
     });
-  };
+  }, []);
 
   useEffect(() => {
     const raids = availableRaidList();
@@ -62,9 +62,19 @@ function CharacterBox({
         </Text>
       </View>
       <View style={styles.raid}>
-        <FlatList
+        {raidList.map((item, index) => (
+          <RaidCheckBox
+            key={`${item.name}${index + 1}`}
+            raid={item}
+            lv={data.ItemMaxLevel}
+            callback={checkRaid}
+            lastItem={raidList.length - 1 === index}
+          />
+        ))}
+        {/* <FlatList
           style={styles.raid}
           data={raidList}
+          nestedScrollEnabled
           keyExtractor={(item) => item.name}
           renderItem={({ item, index }) => (
             <RaidCheckBox
@@ -74,7 +84,7 @@ function CharacterBox({
               firstItem={index === 0}
             />
           )}
-        />
+        /> */}
       </View>
     </View>
   );
@@ -84,12 +94,12 @@ function RaidCheckBox({
   lv,
   raid,
   callback,
-  firstItem,
+  lastItem,
 }: {
   lv: string;
   raid: RaidDataTypes;
   callback: (raid: RaidDataTypes) => void;
-  firstItem: boolean;
+  lastItem: boolean;
 }) {
   const { colors } = useTheme();
   const level = Number(lv.replaceAll(',', ''));
@@ -99,7 +109,7 @@ function RaidCheckBox({
     fillColor: colors.point,
     unfillColor: colors.border,
     text,
-    style: { marginTop: firstItem ? 0 : 14 },
+    style: { marginBottom: lastItem ? 0 : 14 },
     onPress: () => callback(raid),
     isChecked: raid.isChecked,
     innerIconStyle: { borderWidth: 0 },
@@ -158,6 +168,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingVertical: 16,
+    flex: 1,
   },
   name: {
     flexDirection: 'column',

@@ -6,7 +6,6 @@ import {
   StyleSheet,
   View,
   TouchableOpacity,
-  FlatList,
   TouchableWithoutFeedback,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -19,6 +18,7 @@ import { useUserCharacterList } from '@src/api/api';
 import { useTheme } from '@react-navigation/native';
 import { raidData } from '@src/data/raid';
 import { MaterialIcons } from '@expo/vector-icons';
+import { FlatList } from 'react-native-gesture-handler';
 
 export default function MainScreen({ navigation }: { navigation: any }) {
   const { colors } = useTheme();
@@ -108,7 +108,7 @@ export default function MainScreen({ navigation }: { navigation: any }) {
         console.error('Error fetching character list:', error);
       }
     };
-
+    console.log('sss');
     fetchCharacterList();
   }, [currentServer]);
 
@@ -168,6 +168,7 @@ export default function MainScreen({ navigation }: { navigation: any }) {
             {...dropDownPickerStyleProps}
           />
         </View>
+
         <FlatList
           style={{ flex: 1 }}
           data={characterList}
